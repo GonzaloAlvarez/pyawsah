@@ -3,7 +3,7 @@ import sys
 import click
 from loguru import logger
 from click_loguru import ClickLoguru
-from .awsah import list_profiles, list_roles, show_account_info, show_account_url, create_role
+from .awsah import list_profiles, list_roles, show_account_info, show_account_url, create_role, interactive_profile_selection, interactive_role_selection
 
 __program__ = 'awsah'
 __version__ = '0.0.1'
@@ -51,7 +51,21 @@ def newrole(profile, name):
 
 @main.command(help="Show account url for federated login")
 @click_loguru.init_logger(logfile=False)
-@click.option("--profile", required=True, help="Specify the profile to use")
-@click.option("--role", required=True, help="Specify the role to use")
+@click.option("--profile", required=False, help="Specify the profile to use")
+@click.option("--role", required=False, help="Specify the role to use")
 def url(profile, role):
+    # If no profile provided, use interactive selection
+    if not profile:
+        profile = interactive_profile_selection()
+        if not profile:
+            logger.error("No profile selected")
+            return
+    
+    # If no role provided, use interactive selection
+    if not role:
+        role = interactive_role_selection(profile)
+        if not role:
+            logger.error("No role selected")
+            return
+    
     show_account_url(profile, role)

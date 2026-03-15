@@ -10,11 +10,66 @@ import json
 import urllib
 import requests
 import time
+from bullet import Bullet
 
 def list_profiles():
     logger.warning("Listing profiles")
     for profile in boto3.session.Session().available_profiles:
         print(f"  {profile}")
+
+def get_profiles():
+    """Return list of available profiles"""
+    return boto3.session.Session().available_profiles
+
+def get_roles(profile):
+    """Return list of role names for a given profile"""
+    logger.info(f"Getting roles for profile [{profile}]")
+    session = boto3.Session(profile_name=profile)
+    iam = session.client('iam')
+    roles = iam.list_roles()
+    return [role['RoleName'] for role in roles['Roles']]
+
+def interactive_profile_selection():
+    """Interactive profile selection using bullet"""
+    profiles = get_profiles()
+    if not profiles:
+        logger.error("No AWS profiles found")
+        return None
+    
+    cli = Bullet(
+        prompt="Select AWS Profile:",
+        choices=profiles,
+        indent=0,
+        align=5,
+        margin=1,
+        shift=0,
+        bullet="→",
+        pad_right=5
+    )
+    return cli.launch()
+
+def interactive_role_selection(profile):
+    """Interactive role selection using bullet"""
+    try:
+        roles = get_roles(profile)
+        if not roles:
+            logger.error(f"No roles found for profile [{profile}]")
+            return None
+        
+        cli = Bullet(
+            prompt=f"Select Role for profile '{profile}':",
+            choices=roles,
+            indent=0,
+            align=5,
+            margin=1,
+            shift=0,
+            bullet="→",
+            pad_right=5
+        )
+        return cli.launch()
+    except Exception as e:
+        logger.error(f"Error getting roles for profile [{profile}]: {e}")
+        return None
 
 def list_roles(profile):
     logger.info(f"Listing roles for profile [{profile}]")
