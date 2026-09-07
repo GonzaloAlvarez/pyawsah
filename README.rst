@@ -1,38 +1,20 @@
-========================
-Python AWS Access Helper
-========================
+=======
+pyawsah
+=======
 
+**Retired.** Superseded by `awsutils <https://github.com/GonzaloAlvarez/awsutils>`_ —
+see its ``awsdashboard``, a single-file rewrite of this tool's ``url`` command.
 
-Python AWS Client to get Access through the console based on a profile, which provides AWS credentials
+``awsdashboard`` does the same thing (pick a profile, pick a role, print a
+federated console sign-in URL) with no package to install: one file, ``chmod
++x``, and a throwaway venv per run. It also fixes several bugs that were live
+here — role listing was truncated at 100 and included service-linked roles,
+role ARNs were synthesized rather than read, the session name was unvalidated,
+and ``SessionDuration`` was sent with ``AssumeRole`` credentials, which the
+federation endpoint rejects.
 
+The ``newrole`` command was dropped rather than ported: it attached
+``AdministratorAccess`` to a role trusting the account root, with no condition
+and no confirmation.
 
-* Free software: MIT license
-* Documentation: https://pyawsah.readthedocs.io.
-
-
-Features
---------
-
-* List aws profiles in your local machine
-* Create a role that has administration priviledges
-* Create an STS token
-* Derive the URI to access the AWS console from a federated model in one click
-
-Usage
--------
-
-Show a list of profiles available on the machine:
-.. code::shell
-  $ pyawsah profiles
-
-Show a list of roles that the aws account associated witht the profile has available
-.. code::shell
-  $ pyawsah roles --profile [profilename]
-
-Create a new role with administrator priviledges and a specific name
-.. code::shell
-  $ pyawsah newrole --profile [profilename] --name [rolename]
-
-Generate the URL of a federated console access
-.. code::shell
-  $ pyawsah url --profile [profilename] --role [rolename]
+This repository is archived and kept only for history.
